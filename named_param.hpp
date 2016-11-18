@@ -1,4 +1,6 @@
 #pragma once
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include "typestring/typestring.hh"
 
 template<typename String, typename Arg>
@@ -7,6 +9,17 @@ class named_param
 public:
 	typedef String name_type;
 	typedef Arg value_type;
+	named_param()
+	{
+
+	}
+
+	named_param(const boost::optional<Arg>& val_optional)
+		: _val( val_optional )
+	{
+
+	}
+
 	named_param(Arg&& v)
 		: _val( std::move( v ) )
 	{
@@ -36,7 +49,7 @@ public:
 		return name_type::data();
 	}
 
-	const Arg _val;
+	boost::optional<Arg> _val;
 };
 
 
