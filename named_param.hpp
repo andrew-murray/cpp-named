@@ -58,3 +58,18 @@ named_param< T1, T2 > named(T2&& val)
 {
 	return named_param< T1, T2 >(std::forward<T2>(val));
 }
+
+#define _named(param_name, val) named<typestring_is(param_name)>(val)
+
+template<typename StringType>
+struct named_wrapper
+{
+	named_wrapper() {}
+	template<typename T>
+	named_param<StringType, T> operator= (T&& val)
+	{
+		return named_param<StringType, std::remove_cv<T>::type	>(std::forward<T>(val));
+	}
+};
+
+#define _name(param_name) named_wrapper<typestring_is(param_name)>()

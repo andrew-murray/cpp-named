@@ -8,18 +8,18 @@ constexpr bool constexpr_strequal(char const *one, char const *two) {
 }
 
 template<typename NP0>
-auto collect(NP0&& first)
+auto params(NP0&& first)
 -> named_param_map<NP0,void>
 {
 	return named_param_map<NP0, void>(std::forward<NP0>(first));
 }
 
 template<typename NP0, typename... Args>
-auto collect(NP0&& first, Args... args)
-	-> named_param_map<NP0, decltype(collect(std::forward<Args>(args)...)) >
+auto params(NP0&& first, Args... args)
+	-> named_param_map<NP0, decltype(params(std::forward<Args>(args)...)) >
 {
-	typedef decltype(collect(std::forward<Args>(args)...)) other_map_type;
-	return named_param_map<NP0, other_map_type>(std::forward<NP0>(first), collect(std::forward<Args>(args)...));
+	typedef decltype(params(std::forward<Args>(args)...)) other_map_type;
+	return named_param_map<NP0, other_map_type>(std::forward<NP0>(first), params(std::forward<Args>(args)...));
 }
 
 class basic_class
@@ -52,7 +52,7 @@ std::ostream& operator<<(std::ostream& os, const move_only_class&)
 template<typename T>
 T decl_val();
 
-typedef decltype(collect(
+typedef decltype(params(
 	named<typestring_is("f0")>(decl_val<float>()),
 	named<typestring_is("other_param")>(decl_val<int>()),
 	named<typestring_is("class-type")>(decl_val<basic_class>()),
@@ -64,10 +64,11 @@ int main(const int argn, const char* argv[])
 	auto numX = named<typestring_is("num")>(5);
 	static_assert(constexpr_strequal(numX.name(),"num"), "the name of num is wrong!");
 
-	auto param_map = collect(
-		named<typestring_is("f0")>(3.0f),
+	// show some funky syntaxes
+	auto param_map = params(
+		_named("f0", 3.0f),
 		named<typestring_is("other_param")>(2),
-		named<typestring_is("class-type")>(basic_class())
+		_name("class-type") = basic_class()
 	);
 
 	std::cout << param_map.at<typestring_is("f0")>() << std::endl;
