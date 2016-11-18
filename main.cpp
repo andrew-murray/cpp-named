@@ -63,7 +63,9 @@ int main(const int argn, const char* argv[])
 	std::cout << param_map.at<typestring_is("f0")>() << std::endl;
 	std::cout << param_map.at<typestring_is("other_param")>() << std::endl;
 	std::cout << param_map.at<typestring_is("class-type")>() << std::endl;
-	// currently doesn't support move-only types, which I'd like it to
+	//FIXME: doesn't support move-only types currently, which is desirable
+	// std::cout << param_map.at<typestring_is("move-only-type")>() << std::endl;
+
 
 
 
