@@ -92,32 +92,14 @@ void example_api(
 
 int main(const int argn, const char* argv[])
 {
-	// show some funky syntaxes
-	auto param_map = params(
-		_named("f0", 3.0f),
-		named<typestring_is("other_param")>(2),
-		_name("class-type") = basic_class()
-	);
-
-	std::cout << param_map.at<typestring_is("f0")>() << std::endl;
-	std::cout << param_map.at<typestring_is("other_param")>() << std::endl;
-	std::cout << param_map.at<typestring_is("class-type")>() << std::endl;
 	//FIXME: doesn't support move-only types currently, which is desirable
 	// std::cout << param_map.at<typestring_is("move-only-type")>() << std::endl;
 	
-	entry_point_arg_type for_entry_point = param_map;
-
-	std::cout << for_entry_point.at<typestring_is("f0")>() << std::endl;
-	std::cout << for_entry_point.at<typestring_is("other_param")>() << std::endl;
-	std::cout << for_entry_point.at<typestring_is("class-type")>() << std::endl;
-
 	// the below fails (as it should) but with a horrible error 
 	// "can't convert boost::optional<basic_class> to boost::optional<float>
 	// need a ... far better error message
 	// decltype(param_map) compressed = for_entry_point;
-
-
-
+	
 	// example of my initial intended syntax
 	// it's not zero-footprint on the api, but it's lightweight
 
@@ -139,6 +121,40 @@ int main(const int argn, const char* argv[])
 		_name("class-type") = basic_class(),
 		_name("other_param") = 2
 	);
+
+	// few
+
+	example_api(
+		0,
+		1,
+		_named("f0", 3.0f),
+		named<typestring_is("other_param")>(2),
+		_name("class-type") = basic_class()
+	);
+
+	// the configuration object can obviously be messed with
+
+	auto configuration = params(
+		_named("f0", 3.0f),
+		_name("class-type") = basic_class()
+	);
+
+	std::cout << configuration.at<typestring_is("f0")>() << std::endl;
+	const bool user_supplied_change = true;
+	if (user_supplied_change)
+	{
+		configuration.at<typestring_is("f0")>() = 1729.0f; // as all those annoying  users request
+	}
+
+	const bool changed_my_mind = true;
+	if (changed_my_mind)
+	{
+		configuration.at<typestring_is("class-type")>() = boost::none;
+	}
+
+	// it'd be relatively easy to define functions on the named_param_map
+	// such that we can add together parameter sets sensibly and such
+	// or define & ( same as + and ^ ) and | ,  operators sensibly... even subtract
 
 	return 1;
 }
