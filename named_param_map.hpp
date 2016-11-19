@@ -52,16 +52,7 @@ public:
 
 	template<typename OParamType, typename OMapRecurseType>
 	named_param_map(const named_param_map<OParamType, OMapRecurseType>& children);
-
-	template<typename OParamType, typename OMapRecurseType>
-	named_param_map(named_param_map<OParamType, OMapRecurseType>&& children)
-	{
-		typedef named_param_map<OParamType, OMapRecurseType> input_param_type;
-		boost::mpl::for_each<input_param_type::param_set_type>(
-			apply_child(*this, children)
-		);
-	}
-
+	
 	template<typename String, typename _nulltype = std::enable_if<std::is_same<name_type, String>::value>::type>
 	const boost::optional<named_value_type>& at() const
 	{
@@ -202,15 +193,15 @@ named_param_map<ParamType, MapRecurseType>::named_param_map(const named_param_ma
 // packs together into one thing
 template<typename NP0>
 auto params(NP0&& first)
--> named_param_map<NP0, void>
+-> named_param_map<std::remove_cv_t<std::remove_reference_t<NP0>>, void>
 {
-	return named_param_map<NP0, void>(std::forward<NP0>(first));
+	return named_param_map<std::remove_cv_t<std::remove_reference_t<NP0>>, void>(std::forward<NP0>(first));
 }
 
 template<typename NP0, typename... Args>
 auto params(NP0&& first, Args... args)
--> named_param_map<NP0, decltype(params(std::forward<Args>(args)...)) >
+-> named_param_map<std::remove_cv_t<std::remove_reference_t<NP0>>, decltype(params(std::forward<Args>(args)...)) >
 {
 	typedef decltype(params(std::forward<Args>(args)...)) other_map_type;
-	return named_param_map<NP0, other_map_type>(std::forward<NP0>(first), params(std::forward<Args>(args)...));
+	return named_param_map<std::remove_cv_t<std::remove_reference_t<NP0>>, other_map_type>(std::forward<NP0>(first), params(std::forward<Args>(args)...));
 }
