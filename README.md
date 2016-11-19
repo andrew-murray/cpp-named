@@ -1,6 +1,7 @@
 An experiment implementing a pure-library-solution for c++ named arguments functionality.
 
-Status
+Issues
 ======
 
-Very early. Thus far only a compile-time string-to-T "map" has been created.
+- Parameter types are required to be copyable currently
+- Error messages are pretty dire for the most part, work to be done to put static_asserts (or similar) in the right place
