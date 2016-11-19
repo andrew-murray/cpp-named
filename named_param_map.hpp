@@ -197,3 +197,20 @@ named_param_map<ParamType, MapRecurseType>::named_param_map(const named_param_ma
 	);
 	boost::mpl::for_each<input_param_type::param_set_type>( applyer );
 }
+
+// when provided with a flat function call, 
+// packs together into one thing
+template<typename NP0>
+auto params(NP0&& first)
+-> named_param_map<NP0, void>
+{
+	return named_param_map<NP0, void>(std::forward<NP0>(first));
+}
+
+template<typename NP0, typename... Args>
+auto params(NP0&& first, Args... args)
+-> named_param_map<NP0, decltype(params(std::forward<Args>(args)...)) >
+{
+	typedef decltype(params(std::forward<Args>(args)...)) other_map_type;
+	return named_param_map<NP0, other_map_type>(std::forward<NP0>(first), params(std::forward<Args>(args)...));
+}
