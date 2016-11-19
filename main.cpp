@@ -39,6 +39,57 @@ typedef decltype(params(
 	_name("another-thing") = decl_val<float>()
 )) entry_point_arg_type;
 
+template<typename Args>
+struct printer
+{
+	printer(const Args& a)
+		: _args(a)
+	{
+
+	}
+	template<typename T>
+	void operator()(T)
+	{
+		const auto& optionalArg = _args.at< typename T::name_type >();
+		if (optionalArg)
+		{
+			std::cout << optionalArg << std::endl;
+		}
+		else
+		{
+			std::cout << "<unset/>" << std::endl;
+		}
+	}
+	Args _args;
+};
+
+// maybe these two functions could be macro'd up?
+// is that desirable?
+
+void example_api(
+	const int& x,
+	const int& y,
+	const entry_point_arg_type& optionals = entry_point_arg_type()
+)
+{
+	// just some example code to exercise that it works
+	std::cout << "<api>" << std::endl;
+	boost::mpl::for_each<entry_point_arg_type::param_set_type>(
+		printer<entry_point_arg_type>(optionals)
+	);
+	std::cout << "</api>" << std::endl;
+}
+
+template<typename ...Args>
+void example_api(
+	const int& x,
+	const int& y,
+	Args... args
+)
+{
+	return example_api(x, y, entry_point_arg_type(params(args...)));
+}
+
 int main(const int argn, const char* argv[])
 {
 	// show some funky syntaxes
@@ -62,8 +113,32 @@ int main(const int argn, const char* argv[])
 
 	// the below fails (as it should) but with a horrible error 
 	// "can't convert boost::optional<basic_class> to boost::optional<float>
-	// or similar, need a ... far better error message
+	// need a ... far better error message
 	// decltype(param_map) compressed = for_entry_point;
+
+
+
+	// example of my initial intended syntax
+	// it's not zero-footprint on the api, but it's lightweight
+
+	example_api(
+		0,
+		1
+	);
+
+	example_api(
+		0,
+		1,
+		_name("other_param") = 2,
+		_name("class-type") = basic_class()
+	);
+
+	example_api(
+		0,
+		1,
+		_name("class-type") = basic_class(),
+		_name("other_param") = 2
+	);
 
 	return 1;
 }
