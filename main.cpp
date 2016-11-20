@@ -132,6 +132,15 @@ int main(const int argn, const char* argv[])
 		_name("class-type") = basic_class()
 	);
 
+	// this causes an error, as it should!
+	/*
+	auto problem_configuration = params(
+		_named("duplicate", 3.0f),
+		_named("duplicate", 3.0f)
+	);
+	*/
+
+
 	// the configuration object can obviously be messed with
 
 	auto configuration = params(
@@ -155,6 +164,8 @@ int main(const int argn, const char* argv[])
 	// it'd be relatively easy to define functions on the named_param_map
 	// such that we can add together parameter sets sensibly and such
 	// or define & ( same as + and ^ ) and | ,  operators sensibly... even subtract
+	// you want these operators to conveniently deal with these parameter packs inside
+	// the functions, to apply defaults etc.
 
 	return 1;
 }

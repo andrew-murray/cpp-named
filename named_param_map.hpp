@@ -15,7 +15,15 @@ public:
 	typedef typename ParamType::value_type named_value_type;
 	typedef typename ParamType::name_type name_type;
 
+	typedef typename MapRecurseType::name_set_type child_name_set_type;
+	typedef typename boost::mpl::insert< child_name_set_type, name_type >::type name_set_type;
 	typedef typename boost::mpl::insert< typename MapRecurseType::param_set_type, ParamType >::type param_set_type;
+
+	// TODO: Include ParamType in this error message
+	static_assert(
+		!boost::mpl::has_key< child_name_set_type, name_type >::type::value,
+		"Cannot instantiate a named_param_map with duplicate keys"
+	);
 
 	named_param_map()
 	{
@@ -88,6 +96,7 @@ public:
 	typedef typename ParamType::value_type named_value_type;
 	typedef typename ParamType::name_type name_type;
 
+	typedef boost::mpl::set< name_type > name_set_type;
 	typedef boost::mpl::set< ParamType > param_set_type;
 
 	named_param_map()
@@ -143,6 +152,24 @@ public:
 	boost::optional<named_value_type>& at<name_type>()
 	{
 		return _param._val;
+	}
+
+	template<typename T>
+	boost::optional<T> at(const std::string& v)
+	{
+		if (v == name_type::data())
+		{
+			return _param._val;
+		}
+		else
+		{
+			throw std::invalid_argument(v + " was not found.");
+		}
+	}
+
+	boost::optional<named_value_type> at(const char* v)
+	{
+		return at(std::string(v));
 	}
 
 	ParamType _param;
